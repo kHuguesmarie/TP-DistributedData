@@ -14,7 +14,7 @@ spark._jsc.hadoopConfiguration().set(
 path_azure = (
     f"wasbs://{container_name}@"
     f"{storage_account_name}.blob.core.windows.net/"
-    "data_etudiants_spark_tp1.csv"
+    "mon_fichier.csv" #mon_fichier.csv
 )
 
 # 5️ Lecture du DataFrame

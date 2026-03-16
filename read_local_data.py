@@ -1,6 +1,6 @@
 # Lecture d’un fichier CSV dans un DataFrame Spark
 df = spark.read.csv(
-    r" C:\votre_chemin_local\mon_fichier.csv",
+    r" C:\votre_chemin_local\mon_fichier.csv", #mon_fichier.csv
     header=True,      # Première ligne = noms des colonnes
     inferSchema=True  # Détection automatique des types de données
 )
