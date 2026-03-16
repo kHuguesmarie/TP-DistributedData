@@ -25,4 +25,8 @@ df = spark.read.csv(
     inferSchema=True
 )
 
+# Transformations here
+
+
+# Actions here
 df.show()
