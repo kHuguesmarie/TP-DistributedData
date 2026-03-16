@@ -20,7 +20,7 @@ spark.conf.set(
 #)
 
 df = spark.read.csv(
-    "wasbs://sparkdata@monsparkstorage.blob.core.windows.net/etudiants.csv",
+    "wasbs://sparkdata@monsparkstorage.blob.core.windows.net/mon_fichier.csv", ##"wasbs://<NOM_CONTAINER>@<NOM_DU_COMPTE>.blob.core.windows.net/mon_fichier.csv"
     header=True,
     inferSchema=True
 )

@@ -11,6 +11,7 @@ spark = SparkSession.builder \
 
 # Exemple : lire un CSV local
 df = spark.read.csv("Chemin_absolu_vers_fichier/etudiants.csv", header=True, inferSchema=True)
+
 # Transformations here
 
 
