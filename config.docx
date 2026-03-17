@@ -56,3 +56,12 @@ Dans Apache Spark, la Spark UI permet d’observer visuellement comment un progr
 http://localhost:4040
 
 
+Pour vérifier le nombre de partitions que composent votre DataFrame dans PySpark, taper la commande :
+df.rdd.getNumPartitions()
+La commande suivante demande à Spark de modifier le nombre de partitions pour redistribuer les données en 4 partitions :
+df2 = df.repartition(4)
+df2.rdd.getNumPartitions()
+Relancer :
+df2.count()
+Puis Analyser dans Spark UI, le Nombre de tâches et Distribution entre executors.
+
