@@ -65,3 +65,8 @@ Relancer :
 df2.count()
 Puis Analyser dans Spark UI, le Nombre de tâches et Distribution entre executors.
 
+Simulation d’un traitement massif
+Génération de données volumineuses :
+data = spark.range(0, 10000000)
+data.count()
+
