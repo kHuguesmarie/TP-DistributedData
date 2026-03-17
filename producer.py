@@ -2,7 +2,7 @@ from kafka import KafkaProducer
 import json, time, random
 
 producer = KafkaProducer(
-    bootstrap_servers='<IP_WINDOWS>:9092',  # Windows → Docker
+    bootstrap_servers='<IP_WINDOWS>:9092',  # Windows → Docker (remplace <IP_WINDOWS> par ton IP locale sur Windows )
     value_serializer=lambda v: json.dumps(v).encode('utf-8')
 )
 
