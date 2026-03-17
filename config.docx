@@ -72,6 +72,17 @@ Génération de données volumineuses :
 data = spark.range(0, 10000000)
 data.count()
 
+Vous pouvez également charger les données de data.gouv.fr pour tester vos transformations et actions:
+data = spark.read.csv("data/*.csv", header=True, inferSchema=True)
+data.show(5)
+print("Nombre total de lignes :", data.count())
+
+Vérifier la distribution des partitions (important pour Big Data):
+print(data.rdd.getNumPartitions())
+Vous pouvez aussi augmenter les partitions :
+data = data.repartition(10)
+
+
 TP3:
 
 Pour créer un topic, il faut entrer dans le container Kafka via powershell:
@@ -155,3 +166,12 @@ cd ~/spark-streaming-tp
 sudo apt update 
 sudo apt install python3-full python3-venv python3-pip -y
 pip install pymongo fastapi uvicorn
+
+Créer un environnement virtuel nommé venv
+python3 -m venv venv
+Activer l'environnement
+source venv/bin/activate
+Installer la dépendance kafka
+pip install kafka-python pyspark pymongo flask
+Créez producer.py :
+nano producer.py
