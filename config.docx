@@ -138,3 +138,20 @@ db.capteurs.find().pretty()
 
 Lancer SparkUI dans votre navigateur sur http:// IP_WINDOWS:4040/jobs/ pour consulter les statistiques de streaming.
 
+
+TP4:
+Créer un topic :
+/opt/kafka/bin/kafka-topics.sh \
+--create \
+--topic capteurs-iot \
+--bootstrap-server localhost:9092 \
+--partitions 3 \
+   --replication-factor 1
+Lister les topics :
+/opt/kafka/bin/kafka-topics.sh --list --bootstrap-server localhost:9092
+Exit
+Créer le Producer directement dans la VM, sur votre VM (ou sur votre PC local s'il a Python) via l’invite de commande, installez les dépendances :
+cd ~/spark-streaming-tp
+sudo apt update 
+sudo apt install python3-full python3-venv python3-pip -y
+pip install pymongo fastapi uvicorn
