@@ -90,11 +90,12 @@ Lister les topics :
 Installez les dépendances Kafka dans Python:
 pip install kafka-python pyspark pymongo flask
 
-Créer et lancer le producer:
+Créer et lancer le producer après avoir remplace <IP_WINDOWS> par ton IP locale sur Windows :
 python producer.py
 
 Spark va lire le topic capteurs-iot comme s'il s'agissait d'un streaming, il faut donc créer spark_streaming.py pour la simulation flux IoT.
 
+Créer le script spark_streaming.py et remplace <IP_WINDOWS> par ton IP locale sur Windows 
 Copier le script spark_streaming.py dans le conteneur depuis ton PC :
 docker cp C:\spark_streaming.py spark:/opt/spark/work-dir/ 
 Accéder au container Spark installer dans docker :
