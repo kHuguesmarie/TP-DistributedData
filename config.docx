@@ -26,3 +26,17 @@ Récupérer la clé d’accès et lire depuis Spark (Azure Blob)
 •	Storage Account → Access keys ” dans le menu de gauche
 •	Dans le menu latéral gauche, cherche Security + réseau → Access keys
 •	Une fois ouvert, tu verras le Account Name Key1 et Key2. Coper le nom du compte (monsparkstorage) ; copier Key1 (ou Key2)
+
+
+Lancer Docker desktop, lancer le Cluster via PowerShell  :
+docker compose up -d
+
+Pour la vérifier le cluster via Interface Web de Spark Master, ouvrez dans votre navigateur :
+http://localhost:8080
+
+Pour lancer une application Spark en mode cluster, entrer dans le container master avec la commande :
+docker exec -it spark-master bash
+Dans le conteneur spark-master, lance la commande suivante pour ajouter pyspark au PATH :
+export PATH=$PATH:/opt/spark/bin
+Puis, lancer PySpark connecté au cluster :
+pyspark --master spark://spark-master:7077

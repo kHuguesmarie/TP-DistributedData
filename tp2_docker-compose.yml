@@ -28,5 +28,4 @@ services:
     depends_on:
       - spark-master
     volumes:
-      - ./data:/opt/spark/work-dir    depends_on:
-      - spark-master
+      - ./data:/opt/spark/work-dir    
