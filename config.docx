@@ -1,3 +1,4 @@
+Tp1:
 a)	Préparation du fichier de données sur cloud 
 Si le fichier se trouve sur le stockage cloud, sur Azure, on utilise Azure Blob Storage ou Azure Data Lake Storage Gen2 :
 •	Créer un Storage Account (gratuit avec le mail étudiant @viacesi)
@@ -27,6 +28,7 @@ Récupérer la clé d’accès et lire depuis Spark (Azure Blob)
 •	Dans le menu latéral gauche, cherche Security + réseau → Access keys
 •	Une fois ouvert, tu verras le Account Name Key1 et Key2. Coper le nom du compte (monsparkstorage) ; copier Key1 (ou Key2)
 
+TP2:
 
 Lancer Docker desktop, lancer le Cluster via PowerShell  :
 docker compose up -d
@@ -69,4 +71,69 @@ Simulation d’un traitement massif
 Génération de données volumineuses :
 data = spark.range(0, 10000000)
 data.count()
+
+TP3:
+
+Pour créer un topic, il faut entrer dans le container Kafka via powershell:
+docker exec -it kafka bash
+Créer un topic :
+/opt/kafka/bin/kafka-topics.sh \
+--create \
+--topic capteurs-iot \
+--bootstrap-server localhost:9092 \
+--partitions 3 \
+   --replication-factor 1
+
+Lister les topics :
+/opt/kafka/bin/kafka-topics.sh --list --bootstrap-server localhost:9092
+
+Installez les dépendances Kafka dans Python:
+pip install kafka-python pyspark pymongo flask
+
+Créer et lancer le producer:
+python producer.py
+
+Spark va lire le topic capteurs-iot comme s'il s'agissait d'un streaming, il faut donc créer spark_streaming.py pour la simulation flux IoT.
+
+Copier le script spark_streaming.py dans le conteneur depuis ton PC :
+docker cp C:\spark_streaming.py spark:/opt/spark/work-dir/ 
+Accéder au container Spark installer dans docker :
+docker exec -it spark bash
+Lancer un job Spark
+/opt/spark/bin/spark-submit /opt/spark/work-dir/spark_streaming.py
+
+Si problèmes des droits d'accès (permissions) lors de l’installation des dépendances, fixer les permissions du dossier Ivy :
+sudo mkdir -p /home/spark/.ivy2 && sudo chmod -R 777 /home/spark/.ivy2
+
+Si erreur Permission denied, alors on va dire à Spark d’utiliser le dossier /opt/spark/work-dir où il a déjà les droits :
+mkdir -p /opt/spark/work-dir/.ivy2
+
+Lancer Spark avec le bon dossier Ivy:
+
+/opt/spark/bin/spark-submit \
+  --packages org.apache.spark:spark-sql-kafka-0-10_2.12:3.5.3,org.mongodb.spark:mongo-spark-connector_2.12:10.3.0 \
+  --conf spark.jars.ivy=/opt/spark/work-dir/.ivy2 \
+  /opt/spark/work-dir/spark_streaming.py
+
+
+Visualisation et Vérification:
+Lancer le Producer:
+python producer.py
+
+Dans un autre terminal, Lancer un job Spark dans le container Spark :
+docker exec -it spark bash
+Puis :
+/opt/spark/bin/spark-submit   --packages org.apache.spark:spark-sql-kafka-0-10_2.12:3.5.3,org.mongodb.spark:mongo-spark-connector_2.12:10.3.0   --conf spark.jars.ivy=/opt/spark/work-dir/.ivy2   /opt/spark/work-dir/spark_streaming.py
+
+Vérifier que Kafka reçoit les messages. Dans le container Kafka :
+docker exec -it kafka bash
+Puis :
+/opt/kafka/bin/kafka-get-offsets.sh --bootstrap-server kafka:29092 --topic capteurs-iot
+
+Dans un autre terminal, Vérifier que la base de données MongoDB reçoit les messages :
+docker exec -it mongodb mongosh
+use iot
+db.capteurs.find().pretty()
+
+Lancer SparkUI dans votre navigateur sur http:// IP_WINDOWS:4040/jobs/ pour consulter les statistiques de streaming.
 
