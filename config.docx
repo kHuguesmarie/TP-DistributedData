@@ -41,7 +41,18 @@ export PATH=$PATH:/opt/spark/bin
 Puis, lancer PySpark connecté au cluster :
 pyspark --master spark://spark-master:7077
 
+echo -e "id,nom,age\n1,Alice,25\n2,Bob,30\n3,Charlie,28" > etudiants.csv
+Lecture du fichier en DataFrame dans le worker :
+
+from pyspark.sql import SparkSession
+spark = SparkSession.builder \
+    .appName("TP1-Cluster") \
+    .getOrCreate()
+df = spark.read.csv("etudiants.csv", header=True, inferSchema=True)
+df.show()
+
 Analyse dans Spark UI:
 Dans Apache Spark, la Spark UI permet d’observer visuellement comment un programme est exécuté dans le cluster. Pour visualiser dans Spark Interface Application (Spark UI réelle du job), ouvrez dans votre navigateur :
 http://localhost:4040
+
 
