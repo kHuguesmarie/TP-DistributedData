@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>IoT Dashboard</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', sans-serif; background: #0f172a; color: #e2e8f0; padding: 24px; }
+    h1 { text-align: center; margin-bottom: 32px; font-size: 1.8rem; color: #38bdf8; letter-spacing: 1px; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; max-width: 1200px; margin: 0 auto; }
+    .card { background: #1e293b; border-radius: 12px; padding: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.4); }
+    .card h2 { font-size: 1rem; color: #94a3b8; margin-bottom: 16px; text-transform: uppercase; letter-spacing: 1px; }
+    canvas { max-height: 280px; }
+    .refresh { display: block; margin: 24px auto 0; padding: 10px 28px; background: #38bdf8; color: #0f172a;
+               border: none; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer; }
+    .refresh:hover { background: #7dd3fc; }
+    .last-update { text-align: center; margin-top: 12px; color: #475569; font-size: 0.85rem; }
+  </style>
+</head>
+<body>
+  <h1>IoT Sensor Dashboard</h1>
+  <div class="grid">
+    <div class="card">
+      <h2>Température moyenne (°C)</h2>
+      <canvas id="tempChart"></canvas>
+    </div>
+    <div class="card">
+      <h2>Humidité moyenne (%)</h2>
+      <canvas id="humidChart"></canvas>
+    </div>
+    <div class="card" style="grid-column: span 2;">
+      <h2>Température par capteur</h2>
+      <canvas id="tempByCapteurChart"></canvas>
+    </div>
+  </div>
+  <button class="refresh" onclick="loadData()">Rafraîchir</button>
+  <p class="last-update" id="lastUpdate"></p>
+
+  <script>
+    const COLORS = ['#38bdf8','#f472b6','#4ade80','#fb923c','#a78bfa'];
+
+    let tempChart, humidChart, tempByCapteurChart;
+
+    function initCharts() {
+      const baseOpts = (label, color) => ({
+        type: 'line',
+        data: { labels: [], datasets: [{ label, borderColor: color, backgroundColor: color + '22',
+          tension: 0.4, fill: true, pointRadius: 3, data: [] }] },
+        options: { responsive: true, plugins: { legend: { display: false } },
+          scales: { x: { ticks: { color: '#94a3b8', maxTicksLimit: 8 }, grid: { color: '#1e293b' } },
+                    y: { ticks: { color: '#94a3b8' }, grid: { color: '#334155' } } } }
+      });
+
+      tempChart   = new Chart(document.getElementById('tempChart'),   baseOpts('Temp moy', '#38bdf8'));
+      humidChart  = new Chart(document.getElementById('humidChart'),  baseOpts('Humid moy', '#4ade80'));
+
+      tempByCapteurChart = new Chart(document.getElementById('tempByCapteurChart'), {
+        type: 'bar',
+        data: { labels: [], datasets: [] },
+        options: { responsive: true,
+          scales: { x: { ticks: { color: '#94a3b8' }, grid: { color: '#1e293b' } },
+                    y: { ticks: { color: '#94a3b8' }, grid: { color: '#334155' } } },
+          plugins: { legend: { labels: { color: '#e2e8f0' } } } }
+      });
+    }
+
+    async function loadData() {
+      const res  = await fetch('/api/data');
+      const data = await res.json();
+
+      if (!data.length) return;
+
+      // Trier par fenêtre temporelle
+      data.sort((a, b) => new Date(a.window_start) - new Date(b.window_start));
+
+      // Agréger par fenêtre (moyenne de tous les capteurs)
+      const byWindow = {};
+      data.forEach(d => {
+        if (!byWindow[d.window_start]) byWindow[d.window_start] = { temps: [], humids: [] };
+        byWindow[d.window_start].temps.push(d.avg_temp);
+        byWindow[d.window_start].humids.push(d.avg_humidity);
+      });
+
+      const labels  = Object.keys(byWindow).map(w => w.slice(11, 19));
+      const avgTemps  = Object.values(byWindow).map(v => (v.temps.reduce((a,b)=>a+b,0)/v.temps.length).toFixed(2));
+      const avgHumids = Object.values(byWindow).map(v => (v.humids.reduce((a,b)=>a+b,0)/v.humids.length).toFixed(2));
+
+      tempChart.data.labels  = labels;
+      tempChart.data.datasets[0].data = avgTemps;
+      tempChart.update();
+
+      humidChart.data.labels = labels;
+      humidChart.data.datasets[0].data = avgHumids;
+      humidChart.update();
+
+      // Bar chart par capteur
+      const capteurs = [...new Set(data.map(d => d.capteur_id))].sort();
+      const windowLabels = [...new Set(data.map(d => d.window_start.slice(11, 19)))];
+
+      tempByCapteurChart.data.labels = windowLabels;
+      tempByCapteurChart.data.datasets = capteurs.map((id, i) => ({
+        label: `Capteur ${id}`,
+        backgroundColor: COLORS[i % COLORS.length],
+        data: windowLabels.map(w => {
+          const full = Object.keys(byWindow).find(k => k.slice(11,19) === w);
+          const row  = data.find(d => d.capteur_id === id && d.window_start === full);
+          return row ? row.avg_temp.toFixed(2) : null;
+        })
+      }));
+      tempByCapteurChart.update();
+
+      document.getElementById('lastUpdate').textContent = 'Dernière mise à jour : ' + new Date().toLocaleTimeString();
+    }
+
+    initCharts();
+    loadData();
+    setInterval(loadData, 5000);
+  </script>
+</body>
+</html>
