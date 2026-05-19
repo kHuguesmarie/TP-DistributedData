@@ -1,7 +1,7 @@
 Tp1:
 a)	Préparation du fichier de données sur cloud 
 Si le fichier se trouve sur le stockage cloud, sur Azure, on utilise Azure Blob Storage ou Azure Data Lake Storage Gen2 :
-•	Créer un Storage Account (gratuit avec le mail étudiant @viacesi)
+•	Créer un Storage Account (gratuit avec le mail étudiant @university-domain)
 •	Aller sur : https://portal.azure.com 
 •	Create Resource → Storage Account/Compte de stockage
 •	Abonnement : Azure for students
